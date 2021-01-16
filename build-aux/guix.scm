@@ -12,10 +12,12 @@
 (use-modules
  (guix)
  (guix git-download)
+ (guix licenses)
  (guix build-system haskell)
  (gnu packages haskell-xyz)
  ((ice-9 popen) #:select (open-pipe))
- ((ice-9 rdelim) #:select (read-string)))
+ ((ice-9 rdelim) #:select (read-string))
+ (srfi srfi-1))
 
 (define %git-commit
   (read-string
@@ -29,18 +31,21 @@
   (not (any (lambda (str) (string-contains file str))
             '(".git" "build-aux"))))
 
-(package
- (name "ghc-lc")
- (version (git-version "0" "HEAD" %git-commit))
- (source
-  (local-file
-   %srcdir
-   #:recursive? #t
-   #:select? keep-file?))
- (build-system haskell-build-system)
- (inputs
-  `(("ghc-megaparsec" ,ghc-megaparsec)))
- (home-page "TODO")
- (synopsis "Exploration of the lambda calculus")
- (description "Exploration of the lambda calculus")
- (license #f))
+(define-public ghc-lc
+  (package
+    (name "ghc-lc")
+    (version (git-version "0" "HEAD" %git-commit))
+    (source
+     (local-file
+      %srcdir
+      #:recursive? #t
+      #:select? keep-file?))
+    (build-system haskell-build-system)
+    (inputs
+     `(("ghc-megaparsec" ,ghc-megaparsec)))
+    (home-page "TODO")
+    (synopsis "Exploration of the lambda calculus")
+    (description "Exploration of the lambda calculus")
+    (license cc0)))
+
+ghc-lc
