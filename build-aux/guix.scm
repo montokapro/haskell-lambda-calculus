@@ -14,6 +14,7 @@
  (guix git-download)
  (guix licenses)
  (guix build-system haskell)
+ (gnu packages haskell-check)
  (gnu packages haskell-xyz)
  ((ice-9 popen) #:select (open-pipe))
  ((ice-9 rdelim) #:select (read-string))
@@ -43,6 +44,8 @@
     (build-system haskell-build-system)
     (inputs
      `(("ghc-megaparsec" ,ghc-megaparsec)))
+    (native-inputs
+     `(("ghc-hspec" ,ghc-hspec)))
     (home-page "TODO")
     (synopsis "Exploration of the lambda calculus")
     (description "Exploration of the lambda calculus")
