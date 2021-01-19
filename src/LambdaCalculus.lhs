@@ -1,8 +1,15 @@
-We will derive this implemention from the below link, on slide 10.
+We will derive this implemention from the below link, on slide 9.
 
 https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.296.2485&rep=rep1&type=pdf
 
 Note that the App arguments are in the opposite order of the classical representation in literature.
+
+The reasons for this are listed on slide 22. This is also more intuitive to me when applying types. Consider a value of type A and a function of type A -> B. DeBruijn notation has the input located closly with the value.
+
+De Bruijn: apply (x : A) to (f : A -> B) reduces to B
+Classical: apply (f : A -> B) to (x : A) reduces to B
+
+In De Bruijin notation it feels natural to apply values on the left and covalues on the right.
 
 \begin{code}
 {-# LANGUAGE OverloadedStrings #-}
@@ -20,15 +27,13 @@ shift :: Expr -> Int -> Int -> Expr
 shift (App a b) k i = App (shift a k i) (shift b k i)
 shift (Abs a) k i = Abs (shift a (succ k) i)
 shift (Var a) k i | a > k = Var (pred (a + i))
--- shift (Var a) k i | a <= k = Var a
 shift a k i = a
 
 substitute :: Expr -> Expr -> Int -> Expr
 substitute (App a b) term i = App (substitute a term i) (substitute b term i)
 substitute (Abs a) term i = Abs (substitute a term (succ i))
-substitute (Var a) term i | a > i = Var (pred i)
+substitute (Var a) term i | a > i = Var (pred a)
 substitute (Var a) term i | a == i = (shift term 0 i)
--- substitute (Var a) term i | a < i = Var a
 substitute a term i = a
 
 evaluate :: Expr -> Expr
