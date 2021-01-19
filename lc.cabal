@@ -48,10 +48,14 @@ test-suite spec
     hs-source-dirs: test
     build-depends:
         base >=4.12 && <4.13,
+        text,
+        megaparsec,
         lc,
-        hspec
+        hspec,
+        hspec-megaparsec
     other-modules:
         LambdaCalculusSpec
+        ParserSpec
     default-language: Haskell2010
     build-tool-depends: hspec-discover:hspec-discover >= 2 && <3
 

@@ -46,8 +46,9 @@
      `(("ghc-megaparsec" ,ghc-megaparsec)))
     (native-inputs
      `(("ghc-hspec" ,ghc-hspec)
+       ("ghc-hspec-megaparsec" ,ghc-hspec-megaparsec)
        ("hspec-discover" ,hspec-discover)))
-    (home-page "TODO")
+    (home-page "https://github.com/montokapro/haskell-lambda-calculus")
     (synopsis "Exploration of the lambda calculus")
     (description "Exploration of the lambda calculus")
     (license cc0)))
