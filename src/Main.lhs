@@ -1,5 +1,13 @@
 We use De Bruijn's notation here - not just for variable abstraction.
 
+We start with some basic imports and some generic De Bruijn lambda calculus.
+
+We will derive this implemention from the below link, on slide 9.
+
+https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.296.2485&rep=rep1&type=pdf
+
+Note that eval-by-name is defined slightly differently - the App arguments are in the opposite order of the classical representation is in literature.
+
 \begin{code}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
@@ -16,6 +24,10 @@ import Text.Megaparsec.Char
 import qualified Data.Text as T
 import qualified Text.Megaparsec.Char.Lexer as L
 
+import LambdaCalculus
+\end{code}
+
+\begin{code}
 type Parser = Parsec Void Text
 
 sc :: Parser ()
@@ -29,12 +41,6 @@ lexeme = L.lexeme sc
 
 integer :: Parser Int
 integer = lookAhead (satisfy (/= '0')) *> lexeme L.decimal
-
-data LExpr
-  = LVar Int
-  | LAbs LExpr
-  | LApp LExpr LExpr
-  deriving (Eq, Ord, Show)
 \end{code}
 
 We begin with a prefix representation. This should be somewhat familiar to those who understand the lambda calculus. A notable difference is that we use not only De Bruijn indicies, but De Bruijn _notation_.
@@ -53,16 +59,20 @@ TODO: clean this
 (app 1 app 2 \ first \ second (- first second))
 
 \begin{code}
-pLVar :: Parser LExpr
-pLVar = LVar <$> integer
+pLVar :: Parser Expr
+pLVar = Var <$> integer
 
-pLAbs :: Parser LExpr
-pLAbs = LAbs <$> (lexeme (string "labs") *> pLExpr)
+pLAbs :: Parser Expr
+pLAbs = Abs <$> (lexeme (string "labs") *> pLExpr)
 
-pLApp :: Parser LExpr
-pLApp = lexeme (string "lapp") *> do { a <- pLExpr; b <- pLExpr; pure (LApp a b) }
+pLApp :: Parser Expr
+pLApp = lexeme (string "lapp") *>
+  do { a <- pLExpr
+     ; b <- pLExpr
+     ; pure (evaluate (App a b))
+     }
 
-pLExpr :: Parser LExpr
+pLExpr :: Parser Expr
 pLExpr = pLVar <|> pLAbs <|> pLApp
 \end{code}
 
@@ -72,37 +82,36 @@ TODO:
 This has a correlation with call-by-value.
 
 \begin{code}
-data RExpr
-  = RVar Int
-  | RAbs RExpr
-  | RApp RExpr RExpr
-  deriving (Eq, Ord, Show)
+pRVar :: [Expr] -> Parser [Expr]
+pRVar values = do { x <- integer; pure (Var x : values) }
 
-pRVar :: [RExpr] -> Parser [RExpr]
-pRVar values = do { x <- integer; pure (RVar x : values) }
+pRAbs :: Expr -> [Expr] -> Parser [Expr]
+pRAbs a values = lexeme (string "rabs") *> pure (Abs a : values)
 
-pRAbs :: RExpr -> [RExpr] -> Parser [RExpr]
-pRAbs a values = lexeme (string "rabs") *> pure (RAbs a : values)
+pRApp :: Expr -> Expr -> [Expr] -> Parser [Expr]
+pRApp a b values = lexeme (string "rapp") *> pure (App a b : values)
 
-pRApp :: RExpr -> RExpr -> [RExpr] -> Parser [RExpr]
-pRApp a b values = lexeme (string "rapp") *> pure (RApp a b : values)
-
-pRTerm :: [RExpr] -> Parser [RExpr]
+pRTerm :: [Expr] -> Parser [Expr]
 pRTerm (a : (b : values)) = pRApp a b values <|> pRAbs a (b : values) <|> pRVar (a : (b : values))
 pRTerm (a : values) = pRAbs a values <|> pRVar (a : values)
 pRTerm values = pRVar values
 
-pRExpr :: Parser [RExpr]
+pRExpr :: Parser [Expr]
 pRExpr = pRTerm empty
 \end{code}
 
 \begin{code}
 main :: IO ()
-main = do { parseTest pLExpr "lapp labs labs 1 2"
-          ; parseTest (pRTerm []) "1"
-          ; parseTest (pRTerm [RVar 1]) "rabs"
-          ; parseTest (pRTerm [RVar 1]) "2"
-          ; parseTest (pRTerm [RVar 1, RVar 2]) "rapp"
+main = do { putStrLn (show (Var 1))
+          -- ; parseTest pLExpr "lapp 2 labs 1"
+          -- ; parseTest pLExpr "lapp 2 labs labs 2"
+          -- ; parseTest pLExpr "lapp 2 labs labs 1"
+          -- ; parseTest pLExpr "lapp labs 1 labs lapp 4 2"
+          ; parseTest pLExpr "lapp labs 1 labs 3"
+          -- ; parseTest (pRTerm []) "1"
+          -- ; parseTest (pRTerm [Var 1]) "rabs"
+          -- ; parseTest (pRTerm [Var 1]) "2"
+          -- ; parseTest (pRTerm [Var 1, Var 2]) "rapp"
           }
 \end{code}
 

@@ -45,7 +45,8 @@
     (inputs
      `(("ghc-megaparsec" ,ghc-megaparsec)))
     (native-inputs
-     `(("ghc-hspec" ,ghc-hspec)))
+     `(("ghc-hspec" ,ghc-hspec)
+       ("hspec-discover" ,hspec-discover)))
     (home-page "TODO")
     (synopsis "Exploration of the lambda calculus")
     (description "Exploration of the lambda calculus")
