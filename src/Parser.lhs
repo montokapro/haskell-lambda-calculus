@@ -5,13 +5,10 @@
 module Parser (pLExpr) where
 
 import Control.Applicative
-import Control.Monad
-import Data.List
 import Data.Text (Text)
 import Data.Void
 import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char
-import qualified Data.Text as T
 import qualified Text.Megaparsec.Char.Lexer as L
 
 import LambdaCalculus
@@ -90,6 +87,6 @@ pRExpr :: Parser [Expr]
 pRExpr = pRTerm empty
 \end{code}
 
-Special thanks to the following resources:
+Special thanks to the following resource:
 
 https://markkarpov.com/tutorial/megaparsec.html

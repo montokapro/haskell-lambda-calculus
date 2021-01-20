@@ -2,42 +2,29 @@
 
 module PrinterSpec (spec) where
 
-import Data.Text (Text)
-import Data.Void
-import PrettyPrinter
 import Test.Hspec
 
 import LambdaCalculus
+import Printer
 
 spec :: Spec
 spec = do
-  describe "TODO" $ do
-    it "TODO" $ do
-      show (vsep ["hello", "world"]) `shouldBe` "helloworld"
+  describe "ppL" $ do
+    it "var" $ do
+      show (ppL $ Var 1) `shouldBe` "1"
 
+    it "abs" $ do
+      show (ppL $ Abs $ Var 1) `shouldBe` "labs 1"
 
+    it "app" $ do
+      show (ppL $ App (Var 1) (Var 2)) `shouldBe` "lapp 1 2"
 
+  describe "ppR" $ do
+    it "var" $ do
+      show (ppR $ Var 1) `shouldBe` "1"
 
--- http://dev.stephendiehl.com/hask/
+    it "abs" $ do
+      show (ppR $ Abs $ Var 1) `shouldBe` "1 rabs"
 
-
-
-class Pretty p where
-  ppr :: Int -> p -> Doc AnsiStyle
-
-instance Pretty String where
-  ppr _ = pretty
-
-instance Pretty (Doc AnsiStyle) where
-  ppr _ = id
-
-instance Pretty Expr where
-  ppr _ (Var x) = pretty x
-  ppr p e@(App _ _) =
-    let (f, xs) = viewApp e
-    in let args = sep $ map (ppr (p + 1)) xs
-       in parensIf (p > 0) $ ppr p f <+> args
-  ppr p e@(Lam _ _) =
-    let body = ppr (p + 1) (viewBody e)
-    in let vars = map (ppr 0) (viewVars e)
-       in parensIf (p > 0) $ pretty '\\' <> hsep vars <+> pretty "." <+> body
+    it "app" $ do
+      show (ppR $ App (Var 1) (Var 2)) `shouldBe` "2 1 rapp"
