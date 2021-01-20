@@ -22,10 +22,13 @@ executable lc
   other-modules:
       LambdaCalculus
       Parser
+      Printer
   build-depends:
       base >=4.12 && <4.13,
       text,
-      megaparsec
+      megaparsec,
+      prettyprinter,
+      prettyprinter-ansi-terminal
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -Wall
@@ -34,10 +37,13 @@ library
   exposed-modules:
       LambdaCalculus
       Parser
+      Printer
   build-depends:
       base >=4.12 && <4.13,
       text,
-      megaparsec
+      megaparsec,
+      prettyprinter,
+      prettyprinter-ansi-terminal
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -Wall
@@ -50,12 +56,15 @@ test-suite spec
         base >=4.12 && <4.13,
         text,
         megaparsec,
+        prettyprinter,
+        prettyprinter-ansi-terminal,
         lc,
         hspec,
         hspec-megaparsec
     other-modules:
         LambdaCalculusSpec
         ParserSpec
+        PrinterSpec
     default-language: Haskell2010
     build-tool-depends: hspec-discover:hspec-discover >= 2 && <3
 

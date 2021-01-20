@@ -43,7 +43,9 @@
       #:select? keep-file?))
     (build-system haskell-build-system)
     (inputs
-     `(("ghc-megaparsec" ,ghc-megaparsec)))
+     `(("ghc-megaparsec" ,ghc-megaparsec)
+       ("ghc-prettyprinter" ,ghc-prettyprinter-1.6)
+       ("ghc-prettyprinter-ansi-terminal" ,ghc-prettyprinter-ansi-terminal)))
     (native-inputs
      `(("ghc-hspec" ,ghc-hspec)
        ("ghc-hspec-megaparsec" ,ghc-hspec-megaparsec)
