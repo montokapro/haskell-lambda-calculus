@@ -3,19 +3,16 @@
 
 module Main where
 
-import Text.Megaparsec
-
-import Parser
+import System.Environment
 
 main :: IO ()
-main = do { parseTest pLExpr "lapp labs 1 labs 3"
-          -- ; parseTest pLExpr "lapp 2 labs 1"
-          -- ; parseTest pLExpr "lapp 2 labs labs 2"
-          -- ; parseTest pLExpr "lapp 2 labs labs 1"
-          -- ; parseTest pLExpr "lapp labs 1 labs lapp 4 2"
-          -- ; parseTest (pRTerm []) "1"
-          -- ; parseTest (pRTerm [Var 1]) "rabs"
-          -- ; parseTest (pRTerm [Var 1]) "2"
-          -- ; parseTest (pRTerm [Var 1, Var 2]) "rapp"
-          }
+main = getArgs >>= pure . concat >>= putStrLn
 \end{code}
+
+Future Work:
+
+Consider pipes: https://hackage.haskell.org/package/pipes-4.3.14/docs/Pipes.html
+
+Ideally this executable should be able to stream computational processing.
+
+Demo piping between multiple executables, with some executables having reductions that others do not.

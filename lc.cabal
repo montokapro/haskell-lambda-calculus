@@ -65,6 +65,7 @@ test-suite spec
         LambdaCalculusSpec
         ParserSpec
         PrinterSpec
+        EvaluatorSpec
     default-language: Haskell2010
     build-tool-depends: hspec-discover:hspec-discover >= 2 && <3
 
