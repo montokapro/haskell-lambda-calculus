@@ -5,8 +5,22 @@ module Main where
 
 import System.Environment
 
+import Data.Text (Text)
+import Data.Void
+import Text.Megaparsec
+
+import qualified Data.Text as T
+
+import Parser
+import Printer
+
+type Parser = Parsec Void Text String
+
+evaluate :: Parser
+evaluate = pLExpr >>= \a -> pure (show $ ppL a)
+
 main :: IO ()
-main = getArgs >>= pure . concat >>= putStrLn
+main = getArgs >>= pure . T.pack . concat >>= parseTest evaluate
 \end{code}
 
 Future Work:
