@@ -15,7 +15,7 @@ In De Bruijin notation it feels natural to apply values on the left and covalues
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module LambdaCalculus (Expr(..), evaluate) where
+module LambdaCalculus (Expr(..), evaluate, substitute) where
 
 data Expr
   = Var Int
