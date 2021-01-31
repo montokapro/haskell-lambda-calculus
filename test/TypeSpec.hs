@@ -42,16 +42,42 @@ a `shouldUnify` b = fa `shouldBe` fb
     fa = f a
     fb = f b
 
+-- Backport from https://hackage.haskell.org/package/relude-0.7.0.0/docs/src/Relude.List.html#%21%21%3F
+-- License: MIT
+infix 9 !!?
+(!!?) :: [a] -> Int -> Maybe a
+(!!?) xs i
+    | i < 0     = Nothing
+    | otherwise = go i xs
+  where
+    go :: Int -> [a] -> Maybe a
+    go 0 (x:_)  = Just x
+    go j (_:ys) = go (j - 1) ys
+    go _ []     = Nothing
+
+-- -- Because App is in the opposite order from the classical form, this is significantly easier
+infer :: [Expr] -> Expr -> Expr
+infer env a@(Var b) = case (env !!? (pred b)) of
+  Just c -> c
+  Nothing -> a
+infer env (App a b) = App (infer env a) (infer env b)
+infer env (Abs a) = Abs (infer ((Var 1) : env) a)
+
 spec :: Spec
 spec = do
-  -- describe "infer" $ do
-  --   it "I" $ do
-  --     infer [] (Abs (Var 1))
-  --       `shouldBe` Abs (Var 1)
+  -- https://blog.lahteenmaki.net/combinator-birds.html
+  describe "infer" $ do
+    it "I" $ do
+      infer [] (Abs (Var 1))
+        `shouldBe` Abs (Var 1)
 
     -- it "K" $ do
-    --   infer Abs $ Abs $ Var 1
-    --     `shouldBe` Abs $ Abs $ App (Var 2) (App (Var 1) (Var 2))
+    --   infer [] (Abs (Abs (Var 1)))
+    --     `shouldBe` (Abs (Abs (App (Var 2) (App (Var 1) (Var 2)))))
+
+    -- it "T" $ do
+    --   infer Abs $ Abs $ App (Var 1) (Var 2)
+    --     `shouldBe` Abs $ Abs $ App (Var 2) (App (App (Var 2) (Var 1)) (Var 1))
 
     -- it "S" $ do
     --   infer Abs $ Abs $ Abs $ App (App (Var 3) (Var 1)) (App (Var 2) (Var 1))
@@ -63,6 +89,8 @@ spec = do
     --        (App (Var 3) (Var 2)))
     --       (Var 3))
     --      (Var 1))
+
+    -- \a \b . b a : \a \b . a -> (a -> b) -> b
 
   describe "unify" $ do
     it "free vars" $ do
