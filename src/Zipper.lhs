@@ -2,7 +2,7 @@ This code is heavily inspired by:
 https://github.com/srijs/haskell-lambda-term-zipper/blob/master/src/Data/Lambda/Term/Zipper.hs
 
 \begin{code}
-module Zipper (Context(..), Location(..), zipper, down, up, left, right) where
+module Zipper (Context(..), Location(..), zipper, down, up, left, right, modify) where
 
 import qualified LambdaCalculus as L
 
@@ -36,4 +36,7 @@ left location = location
 right :: Location -> Location
 right (At a (AppL context b)) = At b (AppR a context)
 right location = location
+
+modify :: Location -> (L.Expr -> L.Expr) -> Location
+modify (At a b) f = At (f a) b
 \end{code}

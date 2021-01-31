@@ -41,3 +41,7 @@ spec = do
     it "app" $ do
       Z.right (Z.At (L.Var 1) (Z.AppL Z.Top (L.Var 2)))
         `shouldBe` Z.At (L.Var 2) (Z.AppR (L.Var 1) Z.Top)
+
+  it "modify" $ do
+    Z.modify (Z.At (L.Var 1) (Z.Abs Z.Top)) (\a -> L.Abs a)
+      `shouldBe` Z.At (L.Abs (L.Var 1)) (Z.Abs Z.Top)
