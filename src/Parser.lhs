@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Parser (pLExpr) where
+module Parser (pLExpr, integer) where
 
 import Control.Applicative
 import Data.Text (Text)
@@ -50,14 +50,10 @@ pLVar :: Parser Expr
 pLVar = Var <$> integer
 
 pLAbs :: Parser Expr
-pLAbs = Abs <$> (lexeme (string "labs") *> pLExpr)
+pLAbs = lexeme (string "labs") *> (Abs <$> pLExpr)
 
 pLApp :: Parser Expr
-pLApp = lexeme (string "lapp") *>
-  do { a <- pLExpr
-     ; b <- pLExpr
-     ; pure (evaluate (App a b))
-     }
+pLApp = evaluate <$> (lexeme (string "lapp") *> (App <$> pLExpr <*> pLExpr))
 
 pLExpr :: Parser Expr
 pLExpr = pLVar <|> pLAbs <|> pLApp
@@ -68,23 +64,42 @@ It is equally interesting to explore the postfix representation.
 TODO:
 This has a correlation with call-by-value.
 
+We translate the left recursive expression format into something a recursive
+descent parser can consume
+Not good enough transformation:
+
+EXPR  = SUB | GROUP | LIT
+SUB   = EXPR, EXPR, "-"
+
+EXPR  = START, END
+START = GROUP | LIT
+END   = EXPR "-" | NOTHIN
+
+https://markkarpov.com/tutorial/megaparsec.html#parsect-and-parsec-monads
+
+Turns out, most haskell tutorials that tackle how to support left recursive "postfix" operators really address how to support left recursive "infix" operators.
+
+In order to support true postfix operators and a stack based approach, we implement a table of operators.
+
+type ExprParser = Parsec Void Expr Expr
+
 \begin{code}
-pRVar :: [Expr] -> Parser [Expr]
-pRVar values = do { x <- integer; pure (Var x : values) }
+-- pRVar :: [Expr] -> Parser [Expr]
+-- pRVar values = (\x -> Var x : values) <$> integer
 
-pRAbs :: Expr -> [Expr] -> Parser [Expr]
-pRAbs a values = lexeme (string "rabs") *> pure (Abs a : values)
+-- pRAbs :: Expr -> [Expr] -> Parser [Expr]
+-- pRAbs a values = (Abs a : values) <$ lexeme (string "rabs")
 
-pRApp :: Expr -> Expr -> [Expr] -> Parser [Expr]
-pRApp a b values = lexeme (string "rapp") *> pure (App a b : values)
+-- pRApp :: Expr -> Expr -> [Expr] -> Parser [Expr]
+-- pRApp a b values = (App a b : values) <$ lexeme (string "rapp")
 
-pRTerm :: [Expr] -> Parser [Expr]
-pRTerm (a : (b : values)) = pRApp a b values <|> pRAbs a (b : values) <|> pRVar (a : (b : values))
-pRTerm (a : values) = pRAbs a values <|> pRVar (a : values)
-pRTerm values = pRVar values
+-- pRTerm :: [Expr] -> Parser [Expr]
+-- pRTerm (a : (b : values)) = pRApp a b values <|> pRAbs a (b : values) <|> pRVar (a : (b : values))
+-- pRTerm (a : values) = pRAbs a values <|> pRVar (a : values)
+-- pRTerm values = pRVar values
 
-pRExpr :: Parser [Expr]
-pRExpr = pRTerm empty
+-- pRExpr :: Parser [Expr]
+-- pRExpr = pRTerm empty
 \end{code}
 
 Special thanks to the following resource:

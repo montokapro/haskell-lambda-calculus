@@ -2,6 +2,7 @@
 
 module ParserSpec (spec) where
 
+-- import Control.Monad.State
 import Data.Text (Text)
 import Data.Void
 import Test.Hspec
@@ -12,6 +13,11 @@ import LambdaCalculus
 import Parser
 
 type Parser = Parsec Void Text
+
+-- type ExprParser = StateT [Expr] Parser
+
+-- pRVar' :: ExprParser Int
+-- pRVar' = do { put [(Var 1)]; lift $ integer }
 
 spec :: Spec
 spec = do
@@ -24,3 +30,7 @@ spec = do
 
     it "app" $ do
       parse (pLExpr :: Parser Expr) "" "lapp 1 2" `shouldParse` App (Var 1) (Var 2)
+
+  -- describe "pRExpr" $ do
+  --   it "var" $ do
+  --     parse (runState pRVar' []) () "" "1" `shouldParse` 1
