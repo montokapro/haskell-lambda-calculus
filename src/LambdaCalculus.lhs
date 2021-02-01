@@ -14,14 +14,20 @@ In De Bruijin notation it feels natural to apply values on the left and covalues
 \begin{code}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE RankNTypes        #-}
 
 module LambdaCalculus (Expr(..), evaluate) where
 
-data Expr
+data ExprF a
   = Var Int
-  | Abs Expr
-  | App Expr Expr
+  | Abs (ExprF a)
+  | App (ExprF a) (ExprF a)
   deriving (Eq, Ord, Show)
+
+newtype Mu f = Mu (forall a . (f a -> a) -> a)
+-- data Nu f = forall a . Nu a (a -> f a)
+
+type Expr = Mu ExprF
 
 shift :: Expr -> Int -> Int -> Expr
 shift (App a b) k i = App (shift a k i) (shift b k i)
@@ -40,3 +46,5 @@ evaluate :: Expr -> Expr
 evaluate (App a (Abs b)) = evaluate (substitute b a 1)
 evaluate a = id a
 \end{code}
+
+We use RankNTypes to allow for fixpoint definitions, as shown here:
